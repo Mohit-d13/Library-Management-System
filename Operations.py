@@ -2,7 +2,7 @@ import Book
 import User
 import Admin
 import Tables
-import mysql.connector
+import pymysql
 #----------------------------------------------------------------------------------------
 #Operations for Admin Menu
 
@@ -91,17 +91,27 @@ def AdminManagement():
             x=input("Press Enter to continue")
 
 def FeedbackTable():
+    
     print()
     print("Feeback and Rating Table: \n")
-    mycursor.execute("SELECT * from Feedback")
-    records=mycursor.fetchall()
-    row_no=0
-    for rows in records :
-        row_no+=1
-        print("******************************","Row no.",row_no,"******************************")
-        print("\t             Feedbacks: ", rows[0])
-        print("\t      Rating out of 10: ", rows[1])
-        print()  
+    
+    try:
+        mycursor.execute("SELECT * from Feedback")
+        records=mycursor.fetchall()
+        row_no=0
+        if records:
+            for rows in records :
+                row_no+=1
+                print("******************************","Row no.",row_no,"******************************")
+                print("\t             Feedbacks: ", rows[1])
+                print("\t      Rating out of 10: ", rows[2])
+                print()
+        else:
+            print("No feedbacks found.")
+            
+    except pymysql.Error as error:
+        print(f"Failed to display feedbacks from 'feedbacks table': {error}") 
+         
 #----------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------
@@ -135,18 +145,22 @@ def BookCentre():
 #----------------------------------------------------------------------------------------
 def Feedback():
     while True:
-        data=()
-        print("\t\t\t Feedback and Rating\n")
-        print("==============================================================")
-        Feedback=input("Enter your Review about our Library and tell us how can we improve to make you happy!!:))---->")
-        Ratings=input("Rate us out of 10:")
-        data=(Feedback,Ratings)
-        query="INSERT INTO Feedback VALUES (%s, %s)"
-        mycursor.execute(query,data)
-        mydb.commit()
-        print()
-        print("Thank you for your valuable Feedback")
+        try:
+            data=()
+            print("\t\t\t Feedback and Rating\n")
+            print("==============================================================")
+            Feedback=input("Enter your Review about our Library and tell us how can we improve to make you happy!!:))---->")
+            Ratings=input("Rate us out of 10:")
+            data=(Feedback,Ratings)
+            query="INSERT INTO feedbacks (textFeedback, rating) VALUES (%s, %s)"
+            mycursor.execute(query,data)
+            mydb.commit()
+            print()
+            print("Thank you for your valuable Feedback")
+        
+        except pymysql.Error as error:
+            print(f"Failed to add feetback in 'feetback Table': {error}")
         return      
 #----------------------------------------------------------------------------------------
-mydb=mysql.connector.connect(host="localhost",user="root",passwd="mysql123",database="Library")
+mydb=pymysql.connect(host="localhost",user="root",passwd="-@Z5qDk:",database="library")
 mycursor=mydb.cursor()
