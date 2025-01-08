@@ -1,56 +1,91 @@
-import mysql.connector
+import pymysql
 
-mydb=mysql.connector.connect(host="localhost",user="root",passwd="mysql123")
+mydb=pymysql.connect(host="localhost",user="root",passwd="-@Z5qDk:")
 mycursor=mydb.cursor()
-mycursor.execute("CREATE DATABASE IF NOT EXISTS Library")
-mycursor.execute("USE Library")
+mycursor.execute("CREATE DATABASE IF NOT EXISTS library")
+mycursor.execute("USE library")
 
-mycursor.execute("SHOW TABLES LIKE 'BookRecord' ")
-result=mycursor.fetchone()
-if result : 
-    pass
-else : #if Table doesn't exists then it will be created
-    mycursor.execute("""CREATE TABLE BookRecord(BookID varchar(10) PRIMARY KEY , BookName varchar(35) , Author varchar(30) , Publisher varchar(30)) """)
+try:
+    mycursor.execute("SHOW TABLES LIKE 'bookRecords' ")
+    result = mycursor.fetchone()
+    
+    if not result: 
+        mycursor.execute(
+            """
+            CREATE TABLE bookRecords (
+            bookID VARCHAR(10) PRIMARY KEY,
+            bookName VARCHAR(35) NOT NULL,
+            author VARCHAR(30) NOT NULL,
+            publisher VARCHAR(30) NOT NULL
+            )
+            """
+        )
+            
+except pymysql.Error as error:
+    print(f"Failed to create table 'bookRecords': {error} ")
+    
+mydb.commit()    
+     
+     
+try:
+    mycursor.execute("SHOW TABLES LIKE 'userRecords' ")
+    result=mycursor.fetchone()
+    
+    if not result:
+        mycursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS userRecords(
+            userName VARCHAR(20) PRIMARY KEY,
+            password VARCHAR(20) NOT NULL, 
+            bookID VARCHAR(10) NOT NULL,
+            FOREIGN KEY (bookID) REFERENCES bookRecords (bookID)
+            )
+            """
+            )
+except pymysql.Error as error:
+    print(f"Failed to create table 'userRecord': {error}")
+        
+mydb.commit()
 
+try:    
+    mycursor.execute("SHOW TABLES LIKE 'adminRecords' ")
+    result=mycursor.fetchone()
+    if not result: 
+        mycursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS adminRecords(
+            adminID VARCHAR(30) PRIMARY KEY, 
+            password VARCHAR(20) NOT NULL
+            )
+            """
+            )
+        
+except pymysql.Error as error:
+    print("Failed to create table 'adminRecords': {error}")
+    
+mydb.commit()
+    
 
-mycursor.execute("SHOW TABLES LIKE 'UserRecord' ")
-result=mycursor.fetchone()
-if result : 
-    pass
-else : #if Table doesn't exists then it will be created
-    mycursor.execute("""CREATE TABLE UserRecord(UserID varchar(10) PRIMARY KEY, UserName varchar(20),
-                            Password varchar(20), BookID varchar(10),FOREIGN KEY (BookID) REFERENCES BookRecord(BookID))""")
-    data1=("101","Kunal","1234",None)
-    data2=("102","Vishal","3050",None)
-    data3=("103","Siddhesh","5010",None)
-    query1="INSERT INTO UserRecord VALUES(%s, %s, %s, %s)"
-    mycursor.execute(query1,data1)
-    mycursor.execute(query1,data2)
-    mycursor.execute(query1,data3)
-    mydb.commit()
+try:    
+    mycursor.execute("SHOW TABLES LIKE 'feedbacks' ")
+    result=mycursor.fetchone()
     
-mycursor.execute("SHOW TABLES LIKE 'AdminRecord' ")
-result=mycursor.fetchone()
-if result : 
-    pass
-else: #if Table doesn't exists then it will be created
-    mycursor.execute("""CREATE TABLE AdminRecord(AdminID varchar(10) PRIMARY KEY, Password varchar(20))""")
-    data4=("Kunal1020","123")
-    data5=("Siddesh510","786")
-    data6=("Vishal305","675")
-    query2="INSERT INTO AdminRecord VALUES(%s, %s)"
-    mycursor.execute(query2,data4)
-    mycursor.execute(query2,data5)
-    mycursor.execute(query2,data6)
-    mydb.commit()
+    if not result: 
+        mycursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS feedbacks(
+            feedbackID INTEGER PRIMARY KEY AUTO_INCREMENT,
+            textFeedback TEXT DEFAULT NULL,
+            rating VARCHAR(10) NOT NULL
+            )
+            """
+            )
     
+except pymysql.Error as error:
+    print("Failed to create table 'feedbacks' : {error}")
     
-mycursor.execute("SHOW TABLES LIKE 'Feedback' ")
-result=mycursor.fetchone()
-if result : 
-    pass
-else : #if Table doesn't exists then it will be created
-    mycursor.execute("""CREATE TABLE Feedback(Feedback varchar(100) PRIMARY KEY, Rating varchar(10))""")
+mydb.commit()
+mydb.close()
 
 
     
