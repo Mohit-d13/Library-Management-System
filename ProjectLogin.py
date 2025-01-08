@@ -14,7 +14,7 @@ def login_to_admin() : # Admin Login
         password=input("\t  Enter Password : ")
         
         print()
-        mycursor.execute("SELECT Password from AdminRecord where AdminID={0}".format("\'"+AdminID+"\'"))
+        mycursor.execute("SELECT password from adminRecords where adminID={0}".format("\'"+AdminID+"\'"))
         result=mycursor.fetchone()
         if result:
             temp,=result #coverting tuple to integer for comparing password
@@ -47,14 +47,13 @@ def login_to_user(): #User login
     ch=int(input("Enter choice-->"))
     if ch==1:
         data=()
-        UserId=input("Enter your UserId ")
         UserName=input("Enter your Name ")
         Password=input("Enter Password to be set:")
-        data=(UserId,UserName, Password,None)
-        query="INSERT INTO UserRecord VALUES (%s, %s,%s,%s)"
+        data=(UserName, Password, None)
+        query="INSERT INTO userRecords VALUES (%s, %s, %s)"
         mycursor.execute(query,data)
         mydb.commit()
-        mycursor.execute("SELECT UserId from UserRecord where UserId={0}".format("\'"+UserId+"\'"))
+        mycursor.execute("SELECT userName from userRecords where userName={0}".format("\'"+UserName+"\'"))
         result=mycursor.fetchone()
         if result:
             print("Account successfully created")
@@ -65,16 +64,16 @@ def login_to_user(): #User login
     elif ch==2:
         print("WARNING : Only three Attempts to login at a time")
         for attempts in range(0,3) :  # Only three Attempts to login then system will switch off 
-            UserID=input("\t  Enter UserID : ")   # Default Users:Kunal- UserID 101 and Passwd 1234,
+            UserName=input("\t  Enter UserID : ")   # Default Users:Kunal- UserID 101 and Passwd 1234,
                                                     #Vishal- UserID 102 and Passwd 3050,Siddhesh- UserID 103 and Passwd 5010
             password=input("\t  Enter Password : ")
             print()
-            mycursor.execute("SELECT Password from UserRecord where UserID={0}".format("\'"+UserID+"\'"))
+            mycursor.execute("SELECT password from userRecords where userName={0}".format("\'"+UserName+"\'"))
             result=mycursor.fetchone()
             if result:
                 temp,=result #coverting tuple to integer fro comparing password
                 if temp==password: # authenticated usernames and passwords
-                    print("\n\t\t    WELCOME {0} to THE BOOK WORM  \n ".format("\'"+UserID+"\'"))
+                    print("\n\t\t    WELCOME {0} to THE BOOK WORM  \n ".format("\'"+UserName+"\'"))
                     MainMenu.Usermenu()
                     break
                 else :
@@ -117,7 +116,7 @@ def menu() :
             break
         elif ch== "3" :
             cancel_request = input(" DO YOU WISH TO EXIT... [yes/no ] :  ")
-            if cancel_request in ["yes","Yes","YES"] :
+            if cancel_request.lower() in ['yes','y'] :
                 sys.exit()
             break
         else :
@@ -128,4 +127,5 @@ def menu() :
 mydb=pymysql.connect(host="localhost",user="root",passwd="-@Z5qDk:",database="library")
 mycursor=mydb.cursor()
 
-menu()
+if __name__ == "__main__":
+    menu()
