@@ -34,8 +34,16 @@ def insertAdmin():
             AdminID=input("Enter AdminID: ")
             Password=input(" Enter Password to be set: ")
             
-            if not AdminID:
-                raise ValueError("AdminID cannot be empty")
+            if not AdminID or not Password:
+                raise ValueError("AdminID or Password cannot be empty")
+            
+            check_query="SELECT adminID FROM adminRecords WHERE adminID=%s"
+            mycursor.execute(check_query,(AdminID,))
+            existing_user = mycursor.fetchone()
+            
+            if existing_user:
+                print("Administrator ID already taken. Please choose a different AdminID!..")
+                continue
             
             data=(AdminID,Password)
             query="INSERT INTO adminRecords VALUES (%s, %s)"
@@ -58,11 +66,17 @@ def deleteAdmin():
     while True:
         try:
             AdminID=input(" Enter AdminID whose details to be deleted : ")
+  
+            check_query="SELECT adminID FROM adminRecords WHERE adminID=%s"
+            mycursor.execute(check_query, (AdminID,))
+            valid_name=mycursor.fetchone()
             
-            if not AdminID:
-                raise ValueError("AdminID cannot be empty")
-              
-            mycursor.execute("DELETE from adminRecords where adminID={0}".format("\'"+AdminID+"\'"))
+            if not valid_name:
+                print("Entered Administrator ID is not found. Please enter a different one!...")
+                continue
+            
+            delete_query="DELETE FORM adminRecords WHERE adminID=%s"
+            mycursor.execute(delete_query,(AdminID,))
             mydb.commit()
             print("Administrator deleted sucessfully")
             
@@ -109,6 +123,18 @@ def updateAdmin():
         try:
             AdminID=input(" Enter Admin ID for whose details need to be updated : ")
             Password=input(" Enter new Password : ")
+            
+            if not AdminID or not Password:
+                raise ValueError("AdminID or Password cannot be empty")
+            
+            check_query="SELECT adminID FROM adminRecords WHERE adminID=%s"
+            mycursor.execute(check_query, (AdminID,))
+            valid_name=mycursor.fetchone()
+            
+            if not valid_name:
+                print("Entered Administrator ID does not exists. Please enter a different one!...")
+                continue
+            
             query="UPDATE adminRecords SET password = %s WHERE adminID=%s"
             data=(Password,AdminID)
             mycursor.execute(query,data)
@@ -118,7 +144,9 @@ def updateAdmin():
             ch=input("Do you wish to Search more Administrators?[Yes/No] : ")
             if ch.lower() in ('no', 'n'):
                 break
-            
+        
+        except ValueError as e:
+            print(f"Error: {e}")
         except pymysql.Error as error:
             print(f"Failed to update 'Admin Records': {error}")
             
