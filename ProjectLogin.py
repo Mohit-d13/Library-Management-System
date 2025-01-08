@@ -1,7 +1,7 @@
 import sys
 import MainMenu
 import Tables
-import mysql.connector
+import pymysql
 #---------------------------------------------------------------------------------------------------------
 def login_to_admin() : # Admin Login
     print("\n")
@@ -125,7 +125,7 @@ def menu() :
             print(" RETRY \n")
             continue
 #--------------------------------------------------------------------------------------------------------- 
-mydb=mysql.connector.connect(host="localhost",user="root",passwd="mysql123",database="Library")
+mydb=pymysql.connect(host="localhost",user="root",passwd="-@Z5qDk:",database="library")
 mycursor=mydb.cursor()
 
 menu()
