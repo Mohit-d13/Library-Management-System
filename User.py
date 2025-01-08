@@ -83,15 +83,18 @@ def deleteUser():
     while True:
         try:
             print()
-            Username=input(" Enter Username whose details to be deleted : ")  
-            query="DELETE FROM userRecords WHERE userName=%s"
-            mycursor.execute(query,(Username,))
+            UserName=input(" Enter Username whose details to be deleted : ")
+              
+            check_query="SELECT userName FROM userRecords WHERE userName=%s"
+            mycursor.execute(check_query,(UserName,))
             valid_name = mycursor.fetchone()
             
             if not valid_name:
-                print("Entered username does not exists. Please try again!....")
+                print("Username does not exists. Please choose a different username!..")
                 continue
             
+            delete_query="DELETE FROM userRecords WHERE userName=%s"
+            mycursor.execute(delete_query,(UserName,))
             mydb.commit()
             print("User deleted sucessfully")
             
