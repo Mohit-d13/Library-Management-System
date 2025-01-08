@@ -14,7 +14,7 @@ try:
             """
             CREATE TABLE bookRecords (
             bookID VARCHAR(10) PRIMARY KEY,
-            bookName VARCHAR(35) NOT NULL,
+            bookName VARCHAR(50) NOT NULL,
             author VARCHAR(30) NOT NULL,
             publisher VARCHAR(30) NOT NULL
             )
@@ -37,7 +37,7 @@ try:
             CREATE TABLE IF NOT EXISTS userRecords(
             userName VARCHAR(20) PRIMARY KEY,
             password VARCHAR(20) NOT NULL, 
-            bookID VARCHAR(10) NOT NULL,
+            bookID VARCHAR(10) DEFAULT NULL,
             FOREIGN KEY (bookID) REFERENCES bookRecords (bookID)
             )
             """
