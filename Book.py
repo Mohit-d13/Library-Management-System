@@ -15,7 +15,7 @@ def displayBook():
                 bookRecords.bookName,
                 bookRecords.author,
                 bookRecords.publisher,
-                userRecords.userName,
+                userRecords.userName
             FROM 
                 bookRecords
             LEFT JOIN 
@@ -124,7 +124,6 @@ def searchBook():
                     print("\t             Author: ", rows[2])
                     print("\t          Publisher: ", rows[3])
                     print("\t          Issued By: ", rows[4])
-                    print("\t         His UserID: ", rows[5])
                     print()
             else:
                 print("Search Unsuccesfull")
@@ -209,7 +208,7 @@ def IssueBook():
         if not username:
             raise ValueError("Username cannot be empty")
         
-        mycursor.execute("Select bookID from userRecords where userName={0}".format("\'"+username+"\'"))
+        mycursor.execute("Select bookID FROM userRecords WHERE userName={0}".format("\'"+username+"\'"))
         checking=mycursor.fetchone()
         
         if checking==(None,):

@@ -150,9 +150,9 @@ def updateUser():
             
             check_query="SELECT userName FROM userRecords WHERE userName=%s"
             mycursor.execute(check_query,(UserName,))
-            existing_user = mycursor.fetchone()
+            valid_name = mycursor.fetchone()
             
-            if existing_user:
+            if not valid_name:
                 print("Username does not exists. Please try a different username!..")
                 continue
             
