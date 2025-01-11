@@ -51,6 +51,6 @@ The Library Management System is a software application that facilitates the eff
 
 - Python: The core programming language used for the development of the Library Management System.
 - MySQL Database: The database management system used to store and manage library-related data.
-- MySQL Connector: A Python library to facilitate connectivity between the Python application and the MySQL database.
+- PyMySql : A Python library to facilitate connectivity between the Python application and the MySQL database.
 
 Note: This description provides an overview of the Library Management System project and its features. Depending on the project's scope and requirements, additional functionalities and enhancements can be included to create a comprehensive and efficient library management solution.
