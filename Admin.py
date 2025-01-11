@@ -1,6 +1,8 @@
 import pymysql
 import Tables
+
 #---------------------------------------------------------------------------------------------------------                 
+
 def displayAdmin():
     
     print()
@@ -26,32 +28,42 @@ def displayAdmin():
     
     input("Press Enter to continue")
     
-    return
 #---------------------------------------------------------------------------------------------------------         
+
+def get_admin(AdminID):
+    try:
+        mycursor.execute('SELECT adminID FROM adminRecords WHERE adminID=%s',(AdminID,))
+        valid_name = mycursor.fetchone()
+        if valid_name:
+            return True
+
+    except pymysql.err.OperationalError as e:
+        print(f"Failed to connect to database....Connection Error: {e}")
+    
+    return False   
+
+#-------------------------------------------------------------------------------------------------------------
+
 def insertAdmin():
     while True:
         try:
-            AdminID=input("Enter AdminID: ")
+            AdminID=input(" Enter AdminID: ")
             Password=input(" Enter Password to be set: ")
             
             if not AdminID or not Password:
-                raise ValueError("AdminID or Password cannot be empty")
+                raise ValueError("\n AdminID or Password cannot be empty")
             
-            check_query="SELECT adminID FROM adminRecords WHERE adminID=%s"
-            mycursor.execute(check_query,(AdminID,))
-            existing_user = mycursor.fetchone()
-            
-            if existing_user:
-                print("Administrator ID already taken. Please choose a different AdminID!..")
+            if get_admin(AdminID):
+                ch=input("\nAdministrator ID already taken. Please choose a different AdminID!....\nOr Type 'No' to exit to Main Menu: ")
+                if ch.lower() in ('no', 'n'):
+                    break
                 continue
             
-            data=(AdminID,Password)
-            query="INSERT INTO adminRecords VALUES (%s, %s)"
-            mycursor.execute(query,data)
+            mycursor.execute('INSERT INTO adminRecords VALUES(%s, %s)',(AdminID,Password))
             mydb.commit()
-            print("Administrator added sucessfully")
+            print("\n Administrator added sucessfully")
 
-            ch=input("Do you wish to do add more Administrators?[Yes/No] : ")
+            ch=input("\n Do you wish to do add more Administrators?[Yes/No] : ")
             if ch.lower() in ('no', 'n'):
                 break
         
@@ -59,26 +71,27 @@ def insertAdmin():
             print(f"Error: {e}")    
         except pymysql.Error as error:
             print(f"Failed to add Administrator in 'AdminRecords': {error}")
-            
-            
+            break
+                        
 #---------------------------------------------------------------------------------------------------------         
+
 def deleteAdmin():
     while True:
         try:
             AdminID=input(" Enter AdminID whose details to be deleted : ")
-  
-            check_query="SELECT adminID FROM adminRecords WHERE adminID=%s"
-            mycursor.execute(check_query, (AdminID,))
-            valid_name=mycursor.fetchone()
             
-            if not valid_name:
-                print("Entered Administrator ID is not found. Please enter a different one!...")
+            if not AdminID:
+                raise ValueError("AdminID cannot be empty")
+  
+            if not get_admin(AdminID):
+                ch=input("\n Entered Adminstrator ID does not exists. Please Enter a correct one!....\nOr Type 'No' to exit to Main Menu: ")
+                if ch.lower() in ('no', 'n'):
+                    break
                 continue
             
-            delete_query="DELETE FORM adminRecords WHERE adminID=%s"
-            mycursor.execute(delete_query,(AdminID,))
+            mycursor.execute('DELETE FROM adminRecords WHERE adminID=%s',(AdminID,))
             mydb.commit()
-            print("Administrator deleted sucessfully")
+            print("\n Administrator deleted sucessfully")
             
             ch=input("Do you wish to delete more Administrators?[Yes/No] : ")
             if ch.lower() in ('no', 'n'):
@@ -88,6 +101,7 @@ def deleteAdmin():
             print(f"Error: {e}")
         except pymysql.Error as error:
             print(f"Failed to delete Administrator from 'AdminRecords': {error}")
+            break
             
     return
 #---------------------------------------------------------------------------------------------------------     
@@ -102,19 +116,20 @@ def searchAdmin():
             if records:
                 for rows in records :
                     row_no+=1
+                    print()
                     print("******************************","Searched Admin Record","******************************")
                     print("\t             AdminID: ", rows[0])
                     print("\t            Password: ", rows[1])
-                    print()
             else:
-                print("Search Unsuccesfull")
+                print("Search Unsuccessfull")
                 
-            ch=input("Do you wish to Search more Administrators?[Yes/No] : ")
+            ch=input("\n Do you wish to Search more Administrators?[Yes/No] : ")
             if ch.lower() in ('no', 'n'):
                 break
         
         except pymysql.Error as error:
             print(f"Failed to load AdminID from 'Admin Records': {error}")
+            break
             
     return
 #--------------------------------------------------------------------------------------------------------- 
@@ -127,17 +142,13 @@ def updateAdmin():
             if not AdminID or not Password:
                 raise ValueError("AdminID or Password cannot be empty")
             
-            check_query="SELECT adminID FROM adminRecords WHERE adminID=%s"
-            mycursor.execute(check_query, (AdminID,))
-            valid_name=mycursor.fetchone()
-            
-            if not valid_name:
-                print("Entered Administrator ID does not exists. Please enter a different one!...")
+            if not get_admin(AdminID):
+                ch=input("\nEntered Adminstrator ID does not exists. Please Enter a correct one!....\nOr Type 'No' to exit to Main Menu: ")
+                if ch.lower() in ('no', 'n'):
+                    break
                 continue
             
-            query="UPDATE adminRecords SET password = %s WHERE adminID=%s"
-            data=(Password,AdminID)
-            mycursor.execute(query,data)
+            mycursor.execute('UPDATE adminRecords SET password=%s WHERE adminID=%s',(Password,AdminID))
             mydb.commit()
             print("Administrator record updated sucessfully.")
             
@@ -149,6 +160,7 @@ def updateAdmin():
             print(f"Error: {e}")
         except pymysql.Error as error:
             print(f"Failed to update 'Admin Records': {error}")
+            break
             
     return
 #--------------------------------------------------------------------------------------------------------- 
