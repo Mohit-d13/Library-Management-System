@@ -43,6 +43,10 @@ The Library Management System is a software application that facilitates the eff
 9. Reporting:
    - Generate reports and statistics related to book availability, borrower activity, and fines collected.
 
+10. Error-handling:
+   - Making full use of python build-in error handling mechanism to provide more informative and user-friendly error messages to user.
+   - Using pymysql.Error for all the exception that can occur when interacting with MYSQL database using pymysql library in python. 
+
 ## Technologies Used:
 
 - Python: The core programming language used for the development of the Library Management System.
