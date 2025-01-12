@@ -17,23 +17,29 @@ def BookManagement():
         print("5. Update Book Record")
         print("6. Return to Main Menu")
         print("===============================================================")
-        choice=int(input("Enter Choice between 1 to 6-------> : "))
-        if choice==1:
-            Book.insertBook()
-        elif choice==2:
-            Book.displayBook()
-        elif choice==3:
-            Book.searchBook()
-        elif choice==4:
-            Book.deleteBook()
-        elif choice==5:
-            Book.updateBook()
-        elif choice==6:
-            return
-        else:
-            print("Wrong Choice......Enter Your Choice again")
+        try:
+            choice=int(input("Enter Choice between 1 to 6-------> : "))
+            if 1 <= choice <= 6:
+                if choice==1:
+                    Book.insertBook()
+                elif choice==2:
+                    Book.displayBook()
+                elif choice==3:
+                    Book.searchBook()
+                elif choice==4:
+                    Book.deleteBook()
+                elif choice==5:
+                    Book.updateBook()
+                elif choice==6:
+                    return
+            else:
+                raise ValueError
+        except ValueError:    
+            print("Invalid Input......Enter Your Choice again")
             x=input("Press Enter to continue")
+            
 #----------------------------------------------------------------------------------------
+
 def UserManagement():
     while True:
         print("\t\t\t User Record Management\n")
@@ -45,23 +51,29 @@ def UserManagement():
         print("5. Update User Record")
         print("6. Return to Main Menu")
         print("===============================================================")
-        choice=int(input("Enter Choice between 1 to 5-------> : "))
-        if choice==1:
-            User.insertUser()
-        elif choice==2:
-            User.displayUser()
-        elif choice==3:
-            User.searchUser()
-        elif choice==4:
-            User.deleteUser()
-        elif choice==5:
-            User.updateUser()
-        elif choice==6:
-            return
-        else:
-            print("Wrong Choice......Enter Your Choice again")
+        try:
+            choice=int(input("Enter Choice between 1 to 5-------> : "))
+            if 1 <= choice <= 6:
+                if choice==1:
+                    User.insertUser()
+                elif choice==2:
+                    User.displayUser()
+                elif choice==3:
+                    User.searchUser()
+                elif choice==4:
+                    User.deleteUser()
+                elif choice==5:
+                    User.updateUser()
+                elif choice==6:
+                    return
+            else:
+                raise ValueError
+        except ValueError:
+            print("Invalid Input......Enter a number between 1 and 6")
             x=input("Press Enter to continue")
+            
 #----------------------------------------------------------------------------------------
+
 def AdminManagement():
     while True:
         print("\t\t\t Admin Record Management\n")
@@ -73,21 +85,25 @@ def AdminManagement():
         print("5. Update Admin Record")
         print("6. Return to Main Menu")
         print("===============================================================")
-        choice=int(input("Enter Choice between 1 to 5-------> : "))
-        if choice==1:
-            Admin.insertAdmin()
-        elif choice==2:
-            Admin.displayAdmin()
-        elif choice==3:
-            Admin.searchAdmin()
-        elif choice==4:
-            Admin.deleteAdmin()
-        elif choice==5:
-            Admin.updateAdmin()
-        elif choice==6:
-            return
-        else:
-            print("Wrong Choice......Enter Your Choice again")
+        try:    
+            choice=int(input("Enter Choice between 1 to 5-------> : "))
+            if 1 <= choice <= 6:
+                if choice==1:
+                    Admin.insertAdmin()
+                elif choice==2:
+                    Admin.displayAdmin()
+                elif choice==3:
+                    Admin.searchAdmin()
+                elif choice==4:
+                    Admin.deleteAdmin()
+                elif choice==5:
+                    Admin.updateAdmin()
+                elif choice==6:
+                    return
+            else:
+                raise ValueError
+        except ValueError:
+            print("Invalid Input......Enter a number between 1 and 6")
             x=input("Press Enter to continue")
 
 def FeedbackTable():
@@ -96,7 +112,7 @@ def FeedbackTable():
     print("Feeback and Rating Table: \n")
     
     try:
-        mycursor.execute("SELECT * from Feedback")
+        mycursor.execute("SELECT * from feedbacks")
         records=mycursor.fetchall()
         row_no=0
         if records:
@@ -128,21 +144,27 @@ def BookCentre():
         print("4. Return Issued Book ")
         print("5. Return to Main Menu ")
         print("===============================================================")
-        choice=int(input("Enter Choice between 1 to 4-------> : "))
-        if choice==1:
-            Book.BookList()
-        elif choice==2:
-            Book.IssueBook()
-        elif choice==3:
-            Book.ShowIssuedBook()
-        elif choice==4:
-            Book.returnBook()
-        elif choice==5:
-            return
-        else:
-            print("Wrong Choice......Enter Your Choice again")
+        try:
+            choice=int(input("Enter Choice between 1 to 4-------> : "))
+            if 1 <= choice <= 4:
+                if choice==1:
+                    Book.BookList()
+                elif choice==2:
+                    Book.IssueBook()
+                elif choice==3:
+                    Book.ShowIssuedBook()
+                elif choice==4:
+                    Book.returnBook()
+                elif choice==5:
+                    return
+            else:
+                raise ValueError
+        except ValueError:
+            print("Invalid Input......Enter a number between 1 and 5")
             x=input("Press Enter to continue")
+            
 #----------------------------------------------------------------------------------------
+
 def Feedback():
     while True:
         try:
