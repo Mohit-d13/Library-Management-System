@@ -2,6 +2,7 @@ import pymysql
 import Tables
         
 #--------------------------------------------------------------------------------------------------------------------------------        
+
 def displayUser():
     
     print()
@@ -20,8 +21,7 @@ def displayUser():
             LEFT JOIN 
                 bookRecords ON userRecords.bookID=bookRecords.bookID
             """
-            )
-    
+            )    
         records=mycursor.fetchall()
     
         if records:
@@ -41,9 +41,22 @@ def displayUser():
         print(f"Failed to display User Records: {error}")
         
     input("Press any key to return to the User Menu")
-        
     return
+
 #--------------------------------------------------------------------------------------------------------------------------------             
+
+def get_user(UserName):
+    try:
+        mycursor.execute('SELECT userName FROM userRecords WHERE userName=%s',(UserName,))
+        valid_name = mycursor.fetchone()
+        if valid_name:
+            return True
+    except pymysql.err.OperationalError as error:
+        print(f"Failed to connect to database Connection Error: {error}")
+    return False
+
+#------------------------------------------------------------------------------------------------------------------------------------
+
 def insertUser():
     while True:
         try:
@@ -53,21 +66,17 @@ def insertUser():
             if not UserName or not Password:
                 raise ValueError("Username or Password cannot be empty")
             
-            check_query="SELECT userName FROM userRecords WHERE userName=%s"
-            mycursor.execute(check_query,(UserName,))
-            existing_user = mycursor.fetchone()
-            
-            if existing_user:
-                print("Username is already taken. Please choose a different username!..")
+            if get_user(UserName):
+                ch=input("\n Username already taken. Please choose a different name!....\nOr Type 'No' to exit to Main Menu: ")
+                if ch.lower() in ('no', 'n'):
+                    break
                 continue
             
-            data=(UserName, Password, None)
-            query="INSERT INTO userRecords VALUES (%s, %s, %s)"
-            mycursor.execute(query,data)
+            mycursor.execute('INSERT INTO userRecords VALUES (%s, %s, %s)',(UserName, Password, None))
             mydb.commit()
-            print("User added sucessfully")
+            print("\n User added sucessfully")
         
-            ch=input("Do you wish to do add more Users?[Yes/No] : ")
+            ch=input("\n Do you wish to do add more Users?[Yes/No] : ")
             if ch.lower() in ('no', 'n'):
                 break
             
@@ -75,38 +84,43 @@ def insertUser():
             print(f"Error: {e}")
         except pymysql.Error as error:
             print(f"Failed to add User in 'User Records': {error}")
-            
+            break
     return
 
 #--------------------------------------------------------------------------------------------------------------------------------             
+
 def deleteUser():
     while True:
         try:
             print()
             UserName=input(" Enter Username whose details to be deleted : ")
+            
+            if not UserName:
+                raise ValueError("Username cannot be empty")
               
-            check_query="SELECT userName FROM userRecords WHERE userName=%s"
-            mycursor.execute(check_query,(UserName,))
-            valid_name = mycursor.fetchone()
-            
-            if not valid_name:
-                print("Username does not exists. Please choose a different username!..")
+            if not get_user(UserName):
+                ch=input("\n Username does not exists. Please choose a different name!....\nOr Type 'No' to exit to Main Menu: ")
+                if ch.lower() in ('no', 'n'):
+                    break
                 continue
-            
-            delete_query="DELETE FROM userRecords WHERE userName=%s"
-            mycursor.execute(delete_query,(UserName,))
+
+            mycursor.execute('DELETE FROM userRecords WHERE userName=%s',(UserName,))
             mydb.commit()
-            print("User deleted sucessfully")
+            print("\n User deleted sucessfully")
             
-            ch=input("Do you wish to delete more Users?[Yes/No] : ")
+            ch=input("\n Do you wish to delete more Users?[Yes/No] : ")
             if ch.lower() in ('no','n'):
                 break
             
+        except ValueError as e:
+            print(f"\n Error: {e}")    
         except pymysql.Error as error:
             print(f"Failed to delete User from 'User Records': {error}")
-            
+            break
     return
+
 #--------------------------------------------------------------------------------------------------------------------------------         
+
 def searchUser():
     while True:
         try:
@@ -136,9 +150,11 @@ def searchUser():
             
         except pymysql.Error as error:
             print(f"Failed to load User from 'User Records': {error}")
-            
+            break            
     return
+
 #--------------------------------------------------------------------------------------------------------------------------------     
+
 def updateUser():
     while True:
         try:
@@ -148,30 +164,27 @@ def updateUser():
             if not UserName or not Password:
                 raise ValueError("Username or Password cannot be empty")
             
-            check_query="SELECT userName FROM userRecords WHERE userName=%s"
-            mycursor.execute(check_query,(UserName,))
-            valid_name = mycursor.fetchone()
-            
-            if not valid_name:
-                print("Username does not exists. Please try a different username!..")
+            if not get_user(UserName):
+                ch=input("\n Username does not exists. Please choose a different name!....\nOr Type 'No' to exit to Main Menu: ")
+                if ch.lower() in ('no', 'n'):
+                    break
                 continue
             
-            update_query="UPDATE userRecords SET password=%s WHERE userName=%s"
-            data=(Password, UserName)
-            mycursor.execute(update_query,data)
+            mycursor.execute('UPDATE userRecords SET password=%s WHERE userName=%s',(Password, UserName))
             mydb.commit()
-            print("User updated sucessfully")
+            print("\n User updated sucessfully")
         
-            ch=input("Do you wish to do add more Users?[Yes/No] : ")
+            ch=input("\n Do you wish to do add more Users?[Yes/No] : ")
             if ch.lower() in ('no', 'n'):
                 break
             
         except ValueError as e:
-            print(f"Error: {e}")
+            print(f"\n Error: {e}")
         except pymysql.Error as error:
             print(f"Failed to add User in 'User Records': {error}")
-            
-    return  
+            break
+    return 
+ 
 #--------------------------------------------------------------------------------------------------------------------------------     
 mydb=pymysql.connect(host="localhost",user="root",passwd="-@Z5qDk:",database="library")
 mycursor=mydb.cursor()
