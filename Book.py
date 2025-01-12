@@ -1,12 +1,13 @@
 import pymysql
 import Tables
+from User import get_user
+
 #----------------------------------------------------------------------------------------
 #Admin Operation on Books
 def displayBook():
     
     print()
-    print("Book Records: \n")
-    
+    print("Book Records: \n")    
     try:
         mycursor.execute(
             """
@@ -22,7 +23,6 @@ def displayBook():
                 userRecords ON bookRecords.bookID=userRecords.bookID
             """
             )
-        
         records=mycursor.fetchall()
         row_no=0
         
@@ -42,10 +42,23 @@ def displayBook():
     except pymysql.Error as error:
         print(f"Failed to display 'Book records': {error}")
         
-    input("Press Enter to return to the User Menu")
-    
+    input("Press Enter to return to the User Menu")    
     return
+
 #----------------------------------------------------------------------------------------        
+
+def get_book(BookID):
+    try:
+        mycursor.execute('SELECT bookID FROM bookRecords WHERE bookID=%s',(BookID,))
+        valid_book = mycursor.fetchone()
+        if valid_book:
+            return True
+    except pymysql.Error as e:
+        print(f"Failed to execute query: {e}")
+    return False
+
+#-----------------------------------------------------------------------------------------
+
 def insertBook():
     while True:
         try:
@@ -57,52 +70,59 @@ def insertBook():
             if not BookID or not BookName or not Author or not Publisher:
                 raise ValueError("BookID, BookName, Author or Publisher cannot be empty")
             
-            data=(BookID, BookName, Author, Publisher)
-            query="INSERT INTO bookRecords VALUES (%s, %s, %s, %s)"
-            mycursor.execute(query,data)
+            if get_book(BookID):
+                ch=input("\n Book already exists in records. Please add a different Book!....\nOr Type 'No' to exit to Main Menu: ")
+                if ch.lower() in ('no', 'n'):
+                    break
+                continue
+            
+            mycursor.execute('INSERT INTO bookRecords VALUES (%s, %s, %s, %s)',(BookID, BookName, Author, Publisher))
             mydb.commit()
-            print("Book added sucessfully")
+            print("\n Book added sucessfully")
     
             ch=input("Do you wish to do add more Books?[Yes/No] : ")
             if ch.lower() in ('no', 'n'):
                 break
             
         except ValueError as e:
-            print(f"Error: {e}")
+            print(f"\n Error: {e}")
         except pymysql.Error as error:
             print(f"Failed to add new Book in 'BookRecords': {error}")
-    
+            break    
     return
 
 #----------------------------------------------------------------------------------------        
+
 def deleteBook():
     while True:
         try:
             BookID=input(" Enter BookID whose details to be deleted : ")
             
-            check_query="SELECT bookID FROM bookRecords WHERE bookID=%s"
-            mycursor.execute(check_query, (BookID,))
-            valid_name=mycursor.fetchone()
+            if not BookID:
+                raise ValueError("BookID cannot be empty")
             
-            if not valid_name:
-                print("Entered Book does not exists. Please enter a different one!...")
+            if not get_book(BookID):
+                ch=input("\n Book does not exists in records. Please choose a different Book!....\nOr Type 'No' to exit to Main Menu: ")
+                if ch.lower() in ('no', 'n'):
+                    break
                 continue
             
-            delete_query="DELETE FROM bookRecords WHERE bookID=%s"
-            mycursor.execute(delete_query,(BookID,))
+            mycursor.execute('DELETE FROM bookRecords WHERE bookID=%s',(BookID,))
             mydb.commit()
-            print("Book deleted sucessfully")
+            print("\n Book deleted sucessfully")
             
-            ch=input("Do you wish to do add more Books?[Yes/No] : ")
+            ch=input("\n Do you wish to do add more Books?[Yes/No] : ")
             if ch.lower() in ('no', 'n'):
                 break
-            
+        except ValueError as e:
+            print(f"\n Error: {e}")    
         except pymysql.Error as error:
             print(f"Failed to delete Book from 'BookRecords': {error}")
-            
+            break            
     return
 
 #----------------------------------------------------------------------------------------    
+
 def searchBook():
     while True:
         try:
@@ -128,16 +148,16 @@ def searchBook():
             else:
                 print("Search Unsuccesfull")
                 
-            ch=input("Do you wish to do add more Books?[Yes/No] : ")
+            ch=input("\n Do you wish to do add more Books?[Yes/No] : ")
             if ch.lower() in ('no', 'n'):
                 break
               
         except pymysql.Error as error:
-            print(f"Failed to load Book from 'BookRecords': {error}")
-            
+            print(f"Failed to load Book from 'BookRecords': {error}")            
     return
 
 #----------------------------------------------------------------------------------------
+
 def updateBook():
     while True:
         try:
@@ -146,27 +166,28 @@ def updateBook():
             Author=input(" Enter updated Author Name : ")
             Publisher=input(" Enter the updated Publisher Name : ")
             
-            check_query="SELECT bookID FROM bookRecords WHERE bookID=%s"
-            mycursor.execute(check_query, (BookID,))
-            valid_name=mycursor.fetchone()
+            if not BookID or not BookName or not Author or not Publisher:
+                raise ValueError("BookID, Bookname, Author or Publisher cannot be empty")
             
-            if not valid_name:
-                print("Entered Book does not exists. Please enter a different one!...")
+            if not get_book(BookID):
+                ch=input("\n Book does not exists in records. Please choose a different Book!....\nOr Type 'No' to exit to Main Menu: ")
+                if ch.lower() in ('no', 'n'):
+                    break
                 continue
             
-            query="UPDATE bookRecords SET bookname = %s, Author = %s, Publisher = %s WHERE bookID = %s" 
-            data=(BookName,Author,Publisher,BookID)
-            mycursor.execute(query,data)
+            mycursor.execute('UPDATE bookRecords SET bookName=%s, Author=%s, Publisher=%s WHERE bookID=%s',(BookName, Author, Publisher, BookID))
             mydb.commit()
             print("Book's record updated succesfully")
             
-            ch=input("Do you wish to do add more Books?[Yes/No] : ")
+            ch=input("\n Do you wish to do add more Books?[Yes/No] : ")
             if ch.lower() in ('no', 'n'):
                 break
-            
+        
+        except ValueError as e:
+            print(f"\n Error: {e}")    
         except pymysql.Error as error:
             print(f"Failed to add new Book in 'BookRecords': {error}")
-            
+            break            
     return
 #----------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------
@@ -178,7 +199,7 @@ def BookList():
     print("Book Records: \n")
     
     try:
-        mycursor.execute("""SELECT * from bookRecords""")
+        mycursor.execute('SELECT * from bookRecords')
         records=mycursor.fetchall()
         row_no=0
         
@@ -197,18 +218,22 @@ def BookList():
     except pymysql.Error as error:
         print(f"Failed to display Book list from 'BookRecords': {error}")
         
-    input("Press any key to return to the User Menu")
-    
+    input("Press any key to return to the User Menu")    
     return
     
 def IssueBook():
     try:
-        username=input("Enter your Username:")
+        UserName=input("Enter your Username:")
         
-        if not username:
+        if not UserName:
             raise ValueError("Username cannot be empty")
         
-        mycursor.execute("Select bookID FROM userRecords WHERE userName={0}".format("\'"+username+"\'"))
+        if not get_user(UserName):
+            print("Username does not exists. Please Enter a correct Username!...")
+            input("Press any key to return to the User Menu")
+            return
+        
+        mycursor.execute("Select bookID FROM userRecords WHERE userName={0}".format("\'"+UserName+"\'"))
         checking=mycursor.fetchone()
         
         if checking==(None,):
@@ -217,15 +242,17 @@ def IssueBook():
             mycursor.execute(
                 """
                 SELECT 
-                    booksRecords.bookID,
-                    booksRecords.bookName, 
-                    booksRecords.author,
-                    booksRecords.publisher,
+                    bookRecords.bookID,
+                    bookRecords.bookName, 
+                    bookRecords.author,
+                    bookRecords.publisher,
                     userRecords.userName
                 FROM 
-                    booksRecords
+                    bookRecords
                 LEFT JOIN 
-                    userRecords ON booksRecords.bookID=userRecords.bookID
+                    userRecords ON bookRecords.bookID=userRecords.bookID
+                WHERE
+                    userName IS NULL
                 """
                 )
             records=mycursor.fetchall()
@@ -233,15 +260,13 @@ def IssueBook():
             
             if records:
                 for rows in records:
-                    if rows[5]==None:
-                        
-                        row_no+=1
-                        print("******************************","Row no.",row_no,"******************************")
-                        print("\t             BookID: ", rows[0])
-                        print("\t           BookName: ", rows[1])
-                        print("\t             Author: ", rows[2])
-                        print("\t          Publisher: ", rows[3])
-                        print()
+                    row_no+=1
+                    print("******************************","Row no.",row_no,"******************************")
+                    print("\t             BookID: ", rows[0])
+                    print("\t           BookName: ", rows[1])
+                    print("\t             Author: ", rows[2])
+                    print("\t          Publisher: ", rows[3])
+                    print()
             else:
                 print("Sorry, there are no available books in the Library")
                 print("Please Wait for some time till someone return the book you want")
@@ -249,83 +274,108 @@ def IssueBook():
                 return
             
             data=()                             
-            Issue=input("Enter the BookID available to be issued:")
+            Issue=input("Enter a Book's BookID from the display above: ")
             
             if not Issue:
                 raise ValueError("BookId cannot be empty")
             
-            query="UPDATE userRecords SET bookID=%s WHERE userName = %s" 
-            data=(Issue,username)
-            mycursor.execute(query,data)
+            if not get_book(Issue):
+                ch=input("\n INCORRECT BookID...Enter a correct BookID from display above!...\nOr Type 'No' to exit to User Menu: ")
+                if ch.lower() in ['no', 'n']:
+                    return              
+            
+            mycursor.execute(
+                'UPDATE userRecords SET bookID=%s WHERE userName=%s',
+                (Issue,UserName)
+                )
             mydb.commit()
-            print("Book Successfully Issued")
+            print("\n Book Successfully Issued")
             
             input("Press any key to return to the User Menu")
             return
         else:
-            print("Book Already Issued, Kindly Return That first")
+            print(f"\n Status: Book Already Issued to {UserName}, Please kindly return previously issued book.......")
             input("Press any key to return to the User Menu")
     
     except ValueError as e:
         print(f"Error: {e}")        
     except pymysql.Error as error:
-        print(f"Failed to Issue Book from 'BookRecords': {error}")
-        
-    return    
+        print(f"Failed to Issue Book from 'BookRecords': {error}")        
+    return
+    
 #----------------------------------------------------------------------------------------
+
 def ShowIssuedBook():
     try:
         print()
-        username=input("Enter your Username:")
+        UserName=input("Enter your Username:")
+        
+        if not UserName:
+            raise ValueError("Username cannot be empty")
+        
         mycursor.execute("SELECT userName, userRecords.bookID, bookName\
                         FROM library.userRecords INNER JOIN library.bookRecords\
                         ON bookRecords.bookID=userRecords.bookID\
-                        WHERE userName={0}".format("\'"+username+"\'"))
+                        WHERE userName={0}".format("\'"+UserName+"\'"))
         records=mycursor.fetchall()
         row_no=0
         if records:
             for rows in records :
                 row_no+=1
+                print()
                 print("******************************","Issued Book","******************************")
                 print("\t           UserName: ", rows[0])
                 print("\t             BookID: ", rows[1])
                 print("\t           BookName: ", rows[2])
-                print()
             input("Press any key to return to the User Menu")
             return
         else:
             print("No Book Issued")
             input("Press Enter to return to the User Menu")
             
+    except ValueError as e:
+        print(f"\n Error: {e}")        
     except pymysql.Error as error:
-        print(f"Failed to display issued books in 'Book Records': {error}")
-        
+        print(f"Failed to display issued books in 'Book Records': {error}")        
     return
+
 #----------------------------------------------------------------------------------------
+
 def returnBook():
     try:
         print()
-        data=()
-        Username=input("Enter your Username:")
-        Rec=input("Enter BookID to be return:")
+        UserName=input("Enter your Username:")
+        BookID=input("Enter BookID to be return:")
         
-        if not Username or not Rec:
+        if not UserName or not BookID:
             raise ValueError("Username or BookID cannot be empty")
         
-        query="""UPDATE userRecords SET bookID = %s WHERE userName= %s and bookID=%s"""            
-        data=(None,Username,Rec)
-        mycursor.execute(query,data)
-        mydb.commit()
-        print("Return Successfull")
-        input("Press Enter to return to the User Menu")
+        if not get_user(UserName):
+            print("Username does not exists. Please Enter a correct Username!...")
+            input()
+            return
+        
+        mycursor.execute('SELECT bookID FROM userRecords WHERE userName=%s',(UserName,))
+        valid_id = mycursor.fetchone()
+        
+        if valid_id==(BookID,):
+            mycursor.execute(
+                'UPDATE userRecords SET bookID=%s WHERE userName=%s AND bookID=%s',
+                (None, UserName, BookID)
+                )
+            mydb.commit()
+            print("Return Successfull")
+        else:
+            print(f"Entered BookID is INCORRECT or No Book is Issued to {UserName}.\n Please Enter a correct BookID or First check if any book is issued to {UserName}")
+            input("Press Enter to return to the User Menu")
+        
     
     except ValueError as e:
         print(f"Error: {e}")        
     except pymysql.Error as error:
-        print(f"Failed to return Issue Book from 'BookRecords': {error}")
-        
-    return   
-#----------------------------------------------------------------------------------------
-
+        print(f"Failed to return Issued Book from 'BookRecords': {error}")        
+    return
+   
+#------------------------------------------------------------------------------------------
 mydb=pymysql.connect(host="localhost",user="root",passwd="-@Z5qDk:",database="library")
 mycursor=mydb.cursor()
